@@ -1,14 +1,28 @@
-from transformers import GPTNeoForCausalLM, AutoTokenizer
+from transformers import GPTJForCausalLM, AutoTokenizer
+from src.utils.logging import setup_logging
+
+# Set up centralized logging
+logger = setup_logging()
 
 # Load the GPT-Neo model and tokenizer from the local base_model directory
-model = GPTNeoForCausalLM.from_pretrained('../../models/base_model')
-tokenizer = AutoTokenizer.from_pretrained('../../models/base_model')
+try:
+    model = GPTJForCausalLM.from_pretrained('../../models/base_model')
+    tokenizer = AutoTokenizer.from_pretrained('../../models/base_model')
+    logger.info("Model and tokenizer loaded successfully from models/base_model.")
+except Exception as e:
+    logger.error(f"Error loading model or tokenizer: {e}")
+    raise e  # Re-raise the error to handle it at a higher level if necessary
 
-print("Loaded GPT-Neo model from models/base_model")
+# Function to generate responses using the loaded model
+def generate_response(input_text):
+    try:
+        input_ids = tokenizer.encode(input_text, return_tensors='pt')
+        outputs = model.generate(input_ids, max_length=50)
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        logger.debug(f"Generated response: {response}")
+        return response
+    except Exception as e:
+        logger.error(f"Error during text generation: {e}")
+        return "An error occurred while generating a response."
 
-# Ready for fine-tuning or inference
-# Example: text generation (modify as needed)
-input_text = "Your input text here"
-input_ids = tokenizer.encode(input_text, return_tensors='pt')
-outputs = model.generate(input_ids, max_length=50)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+logger.info("Model loaded and ready for bot inference.")

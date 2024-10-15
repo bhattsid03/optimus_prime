@@ -1,0 +1,32 @@
+# Jenkins configuration
+jenkins:
+  user: ${JENKINS_USER}
+  token: ${JENKINS_API_TOKEN}
+  url: ${JENKINS_URL}  # Optional: base URL for Jenkins server
+
+# Gerrit configuration
+gerrit:
+  user: ${GERRIT_USER}
+  key: ${GERRIT_API_KEY}
+  url: ${GERRIT_URL}  # Optional: base URL for Gerrit server
+
+# Slack configuration
+slack:
+  bot_token: ${SLACK_BOT_TOKEN}
+  signing_secret: ${SLACK_SIGNING_SECRET}  # Optional: for verifying requests from Slack
+  channel_id: ${SLACK_CHANNEL_ID}  # Optional: default channel for bot messages
+
+# Jira configuration
+jira:
+  api_token: ${JIRA_API_TOKEN}
+  user: ${JIRA_USER}  # Optional: username for Jira
+
+# Logging configuration
+logging:
+  level: ${LOG_LEVEL}  # Optional: set log level (DEBUG, INFO, etc.)
+  log_file: ${LOG_FILE}  # Optional: path for log file
+
+# Additional settings
+general:
+  bot_name: "Your Bot Name"  # Optional: name of the bot for use in logs/messages
+  response_timeout: 30  # Optional: timeout for bot responses (in seconds)

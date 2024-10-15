@@ -1,0 +1,32 @@
+{
+  "model_name": "gpt-j",
+  "model_type": "transformer",
+  "max_length": 512,
+  "train_batch_size": 2,
+  "eval_batch_size": 2,
+  "num_train_epochs": 3,
+  "logging_dir": "../../logs",
+  "save_steps": 10000,
+  "save_total_limit": 2,
+  "learning_rate": 5e-5,
+  "weight_decay": 0.01,
+  "gradient_accumulation_steps": 1,
+  "lr_scheduler_type": "linear",
+  "warmup_steps": 500,
+  "fp16": true,
+  "parameters": {
+    "num_layers": 12,
+    "hidden_size": 768,
+    "num_attention_heads": 12,
+    "dropout_rate": 0.1
+  },
+  "paths": {
+    "model_weights": "./models/trained_model/model.bin",
+    "tokenizer": "./models/tokenizer/",
+    "config_file": "./models/model_config.json"
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_file": "./logs/model_training.log"
+  }
+}
