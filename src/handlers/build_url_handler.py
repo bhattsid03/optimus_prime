@@ -38,7 +38,7 @@ def handle_jenkins_url(jenkins_url, say):
         say("An error occurred while processing the Jenkins URL.")
         say(f"Error details: {str(e)}")
 
-def handle_gerrit_url(gerrit_url, say):
+def handle_gerrit(gerrit_url, say):
     # Extract change ID from Gerrit URL
     change_id = extract_change_id(gerrit_url)
     

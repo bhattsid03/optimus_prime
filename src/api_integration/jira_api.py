@@ -16,7 +16,7 @@ class JiraAPI:
     def search_issues_for_error(self, error_message):
         try:
             # Construct JQL to search for the error message in summary or description
-            jql = f'summary ~ "{error_message}" OR description ~ "{error_message}"'
+            jql = f'description ~ "{error_message}"'
             issues = self.jira.search_issues(jql)
             return issues
         except Exception as e:

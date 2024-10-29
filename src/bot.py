@@ -2,7 +2,7 @@ import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from src.nlp_processing.inference import process_with_gpt_j
-from src.handlers.build_url_handler import handle_jenkins_url
+from src.handlers.build_url_handler import handle_gerrit, handle_jenkins_url
 from src.handlers.cr_status_handler import handle_gerrit_url
 from src.utils.logging import setup_logging
 
@@ -19,9 +19,10 @@ class SlackBot:
         @self.app.event("app_mention")
         def handle_mention_events(event, say):
             text = event.get('text', '')
+            thread_ts = event.get('ts') or event.get('ts')
 
             # Process the message with the fine-tuned GPT model to detect intent and extract URLs
-            result = process_with_gpt_j(text)
+            result = process_with_gpt_j(text, thread_ts)
             intent = result["intent"]
             urls = result["urls"]
 
@@ -34,10 +35,10 @@ class SlackBot:
             url = urls[0]
             if "gerrit" in url:
                 # Handle Gerrit URL
-                if intent == "check_build_status" or intent == "build_failure":
+                if intent == "Build_Status" or intent == "Build Failure":
                     say("Checking build status from Gerrit...")
-                    handle_gerrit_url(url, say)
-                elif intent == "check_cr_status":
+                    handle_gerrit(url, say)
+                elif intent == "CR Status":
                     say("Fetching CR status from Gerrit...")
                     handle_gerrit_url(url, say)
                 else:
@@ -45,7 +46,7 @@ class SlackBot:
 
             elif "jenkins" in url:
                 # Handle Jenkins URL
-                if intent == "check_build_status" or intent == "build_failure":
+                if intent == "Build_Status" or intent == "Build Failure":
                     say("Checking the latest Jenkins build status...")
                     handle_jenkins_url(url, say)
                 else:
