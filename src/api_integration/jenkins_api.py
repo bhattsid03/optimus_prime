@@ -2,6 +2,7 @@ import requests
 import jenkins
 import os
 import logging
+import re
 
 class JenkinsAPI:
     def __init__(self, server_url, username=None, password=None):
@@ -49,34 +50,55 @@ class JenkinsAPI:
             logging.error(f"Error getting last build status for {job_name}: {e}")
             return None
         
+    def transform_jenkins_url(self, input_url):
+        # Regex pattern to match required parts of the URL
+        pattern = r"https://(.*?)/blue/organizations/jenkins/(.*?)/detail/(.*?)/(\d+)/pipeline"
+        match = re.match(pattern, input_url)
+
+        if match:
+            base_url = match.group(1)
+            pipeline_name = match.group(2)
+            branch_name = match.group(3)
+            run_number = match.group(4)
+
+            # Construct the new URL based on the extracted information
+            transformed_url = f"https://{base_url}/blue/rest/organizations/jenkins/pipelines/{pipeline_name}/branches/{branch_name}/runs/{run_number}/log/?start=0"
+            return transformed_url
+        else:
+            raise ValueError("Invalid URL format")
+        
     def get_jenkins_error_log(self, jenkins_url):
-        """
-        :return: A tuple of (error_log, error_message). If no errors, returns (None, None).
-        """
         try:
             # Request the build log from the Jenkins URL
-            response = requests.get(f"{jenkins_url}/log") # 
-            response.raise_for_status()  # Raise exception if the request failed
+            log_url = self.transform_jenkins_url(jenkins_url)
+            response = requests.get(log_url)
+            response.raise_for_status() 
             
-            build_log = response.text  # Get the full build log as text
-
-            # Filter for lines containing "ERROR" or "Exception", creates 
-            # a list of error lines and joins them into a string error_log using \n.
-            error_log = "\n".join([line for line in build_log.splitlines() if "ERROR" in line or "Exception" in line])
-
-            # Extract the first error message (if any)
+            build_log = response.text.splitlines() 
+            error_log_lines = []
             error_message = None
-            for line in build_log.splitlines():
-                if "ERROR" in line or "Exception" in line:
-                    error_message = line
-                    break
+            context_lines = 10  # Number of lines of context before each error line
 
-            # If no errors found, return None
+            for i, line in enumerate(build_log):
+                if "ERROR" in line or "Exception" in line:
+                    if error_message is None:
+                        error_message = line
+                    
+                    start_idx = max(0, i - context_lines)  # Calculate the starting index
+                    if not error_log_lines or start_idx > error_log_lines[-1][1]:
+                        error_log_lines.append((start_idx, i + 1))
+
+            error_log = "\n".join(
+                build_log[start_idx:end_idx] 
+                for start_idx, end_idx in error_log_lines
+            )
+            
             if not error_log:
                 error_log = "No errors found in the build log."
-            
+
             return error_log, error_message
-        
+
         except requests.RequestException as err:
             print(f"Error retrieving Jenkins error log: {err}")
             return None, None
+
