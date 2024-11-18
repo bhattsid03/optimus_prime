@@ -8,11 +8,8 @@ from src.utils.logging import setup_logging
 
 class SlackBot:
     def __init__(self):
-        # Initialize the Slack Bolt app
         self.app = App(token=os.getenv("SLACK_BOT_TOKEN"))
-        # Set up logging
         self.logger = setup_logging()
-        # Register event handlers
         self.register_event_handlers()
 
     def register_event_handlers(self):
@@ -21,7 +18,6 @@ class SlackBot:
             text = event.get('text', '')
             thread_ts = event.get('ts') or event.get('ts')
 
-            # Process the message with the fine-tuned GPT model to detect intent and extract URLs
             result = process_with_gpt_j(text, thread_ts)
             intent = result["intent"]
             urls = result["urls"]
@@ -31,7 +27,6 @@ class SlackBot:
                 say("Please provide a valid URL in your request.")
                 return
             
-            # Check the type of URL (Gerrit or Jenkins)
             url = urls[0]
             if "gerrit" in url:
                 # Handle Gerrit URL
@@ -56,9 +51,8 @@ class SlackBot:
 
 
     def start(self):
-        # Start the bot using Socket Mode
         SocketModeHandler(self.app, os.getenv("SLACK_APP_TOKEN")).start()
 
 if __name__ == "__main__":
-    slack_bot = SlackBot()  # Create an instance of SlackBot
-    slack_bot.start()  # Start the bot
+    slack_bot = SlackBot() 
+    slack_bot.start()

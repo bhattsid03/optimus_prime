@@ -15,7 +15,7 @@ class JiraAPI:
     # Search Jira for tickets related to the error
     def search_issues_for_error(self, error_message):
         try:
-            # Construct JQL to search for the error message in summary or description
+            # Construct JQL to search for the error message in description
             jql = f'description ~ "{error_message}"'
             issues = self.jira.search_issues(jql)
             return issues
@@ -23,14 +23,10 @@ class JiraAPI:
             print(f"Error searching issues in Jira: {e}")
             return []
 
-    # Full workflow to find Jira tickets related to Jenkins error
     def find_jira_tickets(self, error_message):
-        # Search Jira for tickets related to the error
         jira_issues = self.search_issues_for_error(error_message)
         if not jira_issues:
             return f"No Jira tickets found related to the error: {error_message}"
-
-        # Return the relevant Jira tickets to the user with links
         response = f"Found {len(jira_issues)} Jira ticket(s) related to the error: {error_message}\n"
         for issue in jira_issues:
             # Construct the URL for each Jira issue using the stored server URL

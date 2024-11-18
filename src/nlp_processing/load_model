@@ -1,19 +1,16 @@
 from transformers import GPTJForCausalLM, AutoTokenizer
 from src.utils.logging import setup_logging
 
-# Set up centralized logging
 logger = setup_logging()
 
-# Load the GPT-Neo model and tokenizer from the local base_model directory
 try:
     model = GPTJForCausalLM.from_pretrained('../../models/base_model')
     tokenizer = AutoTokenizer.from_pretrained('../../models/base_model')
     logger.info("Model and tokenizer loaded successfully from models/base_model.")
 except Exception as e:
     logger.error(f"Error loading model or tokenizer: {e}")
-    raise e  # Re-raise the error to handle it at a higher level if necessary
+    raise e
 
-# Function to generate responses using the loaded model
 def generate_response(input_text):
     try:
         input_ids = tokenizer.encode(input_text, return_tensors='pt')
